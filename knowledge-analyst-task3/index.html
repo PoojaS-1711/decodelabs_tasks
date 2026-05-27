@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Knowledge Analyst Dashboard — Task 3</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --bg: #f5f0e8;
+      --bg2: #ede8df;
+      --ink: #1a1612;
+      --ink2: #4a4540;
+      --ink3: #8a8580;
+      --risk: #c0392b;
+      --risk-bg: #fdf0ee;
+      --risk-border: #e8b4af;
+      --date: #1a5276;
+      --date-bg: #eaf2f8;
+      --date-border: #aed6f1;
+      --stake: #1e8449;
+      --stake-bg: #eafaf1;
+      --stake-border: #a9dfbf;
+      --accent: #8b5e3c;
+    }
+ 
+    html { scroll-behavior: smooth; }
+ 
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+ 
+    /* ── HEADER ── */
+    .header {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 3rem 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+ 
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--risk), var(--date), var(--stake));
+    }
+ 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+ 
+    .task-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--ink3);
+      background: rgba(255,255,255,0.08);
+      padding: 0.3rem 0.8rem;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+ 
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+ 
+    .header h1 em {
+      font-style: italic;
+      color: #c9a96e;
+    }
+ 
+    .header-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: rgba(245,240,232,0.5);
+      line-height: 1.8;
+      margin-top: 1rem;
+    }
+ 
+    .paper-title {
+      font-size: 0.8rem;
+      color: rgba(245,240,232,0.7);
+      margin-top: 0.75rem;
+      font-style: italic;
+      max-width: 700px;
+      line-height: 1.5;
+    }
+ 
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--bg2);
+    }
+ 
+    .stat {
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-right: 1px solid var(--bg2);
+      transition: background 0.2s;
+    }
+ 
+    .stat:last-child { border-right: none; }
+    .stat:hover { background: var(--bg2); }
+ 
+    .stat-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+ 
+    .stat.risk .stat-icon { background: var(--risk-bg); }
+    .stat.date .stat-icon { background: var(--date-bg); }
+    .stat.stake .stat-icon { background: var(--stake-bg); }
+ 
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      line-height: 1;
+    }
+ 
+    .stat.risk .stat-num { color: var(--risk); }
+    .stat.date .stat-num { color: var(--date); }
+    .stat.stake .stat-num { color: var(--stake); }
+ 
+    .stat-label {
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.1em;
+      color: var(--ink3);
+      text-transform: uppercase;
+    }
+ 
+    /* ── FILTER TABS ── */
+    .filter-bar {
+      padding: 1.5rem 3rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      border-bottom: 1px solid var(--bg2);
+      flex-wrap: wrap;
+    }
+ 
+    .filter-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: var(--ink3);
+      text-transform: uppercase;
+      margin-right: 0.5rem;
+    }
+ 
+    .tab {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--bg2);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--ink2);
+    }
+ 
+    .tab:hover { border-color: var(--ink3); }
+    .tab.active.risk { background: var(--risk); color: white; border-color: var(--risk); }
+    .tab.active.date { background: var(--date); color: white; border-color: var(--date); }
+    .tab.active.stake { background: var(--stake); color: white; border-color: var(--stake); }
+    .tab.active.all { background: var(--ink); color: white; border-color: var(--ink); }
+ 
+    /* ── MAIN GRID ── */
+    .main {
+      padding: 2rem 3rem 4rem;
+    }
+ 
+    .section {
+      margin-bottom: 3rem;
+    }
+ 
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid;
+    }
+ 
+    .section-header.risk { border-color: var(--risk); }
+    .section-header.date { border-color: var(--date); }
+    .section-header.stake { border-color: var(--stake); }
+ 
+    .section-icon {
+      font-size: 1.2rem;
+    }
+ 
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+    }
+ 
+    .section-header.risk .section-title { color: var(--risk); }
+    .section-header.date .section-title { color: var(--date); }
+    .section-header.stake .section-title { color: var(--stake); }
+ 
+    .section-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--ink3);
+      margin-left: auto;
+    }
+ 
+    /* ── CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+ 
+    .card {
+      padding: 1.25rem 1.5rem;
+      border: 1px solid;
+      position: relative;
+      animation: fadeIn 0.3s ease both;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+ 
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+ 
+    .card.risk { background: var(--risk-bg); border-color: var(--risk-border); }
+    .card.date { background: var(--date-bg); border-color: var(--date-border); }
+    .card.stake { background: var(--stake-bg); border-color: var(--stake-border); }
+ 
+    .card-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+    }
+ 
+    .card.risk .card-num { color: var(--risk); }
+    .card.date .card-num { color: var(--date); }
+    .card.stake .card-num { color: var(--stake); }
+ 
+    .card-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.92rem;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+ 
+    .card-desc {
+      font-size: 0.83rem;
+      color: var(--ink2);
+      line-height: 1.65;
+      margin-bottom: 0.75rem;
+    }
+ 
+    .card-cite {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.3rem 0.6rem;
+      display: inline-block;
+      border-radius: 2px;
+    }
+ 
+    .card.risk .card-cite { background: rgba(192,57,43,0.1); color: var(--risk); }
+    .card.date .card-cite { background: rgba(26,82,118,0.1); color: var(--date); }
+    .card.stake .card-cite { background: rgba(30,132,73,0.1); color: var(--stake); }
+ 
+    /* ── PROMPT SECTION ── */
+    .prompt-section {
+      margin: 0 3rem 3rem;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 2rem;
+    }
+ 
+    .prompt-section h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 1.25rem;
+      color: #c9a96e;
+    }
+ 
+    .prompt-block {
+      background: rgba(255,255,255,0.05);
+      border-left: 3px solid #c9a96e;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: rgba(245,240,232,0.8);
+    }
+ 
+    .prompt-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #c9a96e;
+      margin-bottom: 0.4rem;
+    }
+ 
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      color: rgba(245,240,232,0.4);
+      text-align: center;
+      padding: 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+    }
+ 
+    footer span { color: #c9a96e; }
+ 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+ 
+    .hidden { display: none !important; }
+ 
+    @media (max-width: 700px) {
+      .header, .main, .filter-bar, .prompt-section { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .stats-bar { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--bg2); }
+      .cards { grid-template-columns: 1fr; }
+      .prompt-section { margin: 0 1.25rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+ 
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="task-badge">TASK 03 · KNOWLEDGE ANALYST · RAG CONCEPTS</div>
+    <div class="task-badge">DecodeLabs · Batch 2026</div>
+  </div>
+  <h1>Document <em>Intelligence</em><br>Dashboard</h1>
+  <p class="paper-title">
+    Source: "A Combined Approach for a Privacy-Aware Digital Forensic Investigation in Enterprises"<br>
+    Ludwig Englbrecht & Günther Pernul — University of Regensburg, Germany (2021)
+  </p>
+  <div class="header-meta">
+    Received: 09 Nov 2020 &nbsp;·&nbsp; Accepted: 14 Nov 2020 &nbsp;·&nbsp; Published: 10 Mar 2021 &nbsp;·&nbsp; Journal of Cyber Security and Mobility, Vol. 10(1), pp. 27–64
+  </div>
+</div>
+ 
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat risk">
+    <div class="stat-icon">⚠️</div>
+    <div>
+      <div class="stat-num">6</div>
+      <div class="stat-label">Risks Identified</div>
+    </div>
+  </div>
+  <div class="stat date">
+    <div class="stat-icon">📅</div>
+    <div>
+      <div class="stat-num">9</div>
+      <div class="stat-label">Key Dates</div>
+    </div>
+  </div>
+  <div class="stat stake">
+    <div class="stat-icon">👥</div>
+    <div>
+      <div class="stat-num">8</div>
+      <div class="stat-label">Stakeholders</div>
+    </div>
+  </div>
+</div>
+ 
+<!-- FILTER TABS -->
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <button class="tab active all" onclick="filterCards('all', this)">All</button>
+  <button class="tab risk" onclick="filterCards('risk', this)">⚠️ Risks</button>
+  <button class="tab date" onclick="filterCards('date', this)">📅 Dates</button>
+  <button class="tab stake" onclick="filterCards('stake', this)">👥 Stakeholders</button>
+</div>
+ 
+<!-- MAIN DASHBOARD -->
+<div class="main">
+ 
+  <!-- RISKS -->
+  <div class="section" id="section-risk">
+    <div class="section-header risk">
+      <span class="section-icon">⚠️</span>
+      <h2 class="section-title">Risks & Limitations</h2>
+      <span class="section-count">6 items extracted</span>
+    </div>
+    <div class="cards">
+ 
+      <div class="card risk">
+        <div class="card-num">RISK · 01</div>
+        <div class="card-title">Encrypted Data Incompatibility</div>
+        <div class="card-desc">The approach cannot be applied to encrypted data, as the entropy-based comparison will not work properly in such cases. The key of the encrypted drive must be extracted first to access an unencrypted image.</div>
+        <span class="card-cite">Page 56 · Section 5 — Discussion and Limitations</span>
+      </div>
+ 
+      <div class="card risk">
+        <div class="card-num">RISK · 02</div>
+        <div class="card-title">Encrypted File System Limitations</div>
+        <div class="card-desc">Given the greater usage of encrypted file systems, the applicability of the proposed solution will be significantly limited in modern enterprise environments.</div>
+        <span class="card-cite">Page 56 · Section 5 — Discussion and Limitations</span>
+      </div>
+ 
+      <div class="card risk">
+        <div class="card-num">RISK · 03</div>
+        <div class="card-title">Steganography Bypass</div>
+        <div class="card-desc">Relevant data stored in excluded file types using steganography techniques cannot be considered by the approach, creating a potential gap in evidence collection.</div>
+        <span class="card-cite">Page 56 · Section 5 — Discussion and Limitations</span>
+      </div>
+ 
+      <div class="card risk">
+        <div class="card-num">RISK · 04</div>
+        <div class="card-title">Anti-Forensic Technique Interference</div>
+        <div class="card-desc">The filtering procedure will be interfered with in any case where anti-forensic techniques may have been used by a suspect, potentially compromising investigation integrity.</div>
+        <span class="card-cite">Page 56 · Section 5 — Discussion and Limitations</span>
+      </div>
+ 
+      <div class="card risk">
+        <div class="card-num">RISK · 05</div>
+        <div class="card-title">Adversarial Manipulation</div>
+        <div class="card-desc">A clever attacker can learn the investigation procedure and modify files through specific manipulation, causing misidentification of relevant traces — described as one of the biggest limitations of the approach.</div>
+        <span class="card-cite">Page 56 · Section 5 — Discussion and Limitations</span>
+      </div>
+ 
+      <div class="card risk">
+        <div class="card-num">RISK · 06</div>
+        <div class="card-title">Low Recall Performance</div>
+        <div class="card-desc">Without variance parameters, the algorithm achieved only 50% Recall, meaning too many irrelevant emails were not removed from the final investigation image, posing a privacy risk.</div>
+        <span class="card-cite">Page 55 · Section 4 — Evaluation, Table 4, Equation 7</span>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <!-- DATES -->
+  <div class="section" id="section-date">
+    <div class="section-header date">
+      <span class="section-icon">📅</span>
+      <h2 class="section-title">Key Dates & Timeline</h2>
+      <span class="section-count">9 items extracted</span>
+    </div>
+    <div class="cards">
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 01</div>
+        <div class="card-title">Paper Received</div>
+        <div class="card-desc">Manuscript submitted and received by the Journal of Cyber Security and Mobility.</div>
+        <span class="card-cite">09 November 2020 · Page 27, Header</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 02</div>
+        <div class="card-title">Paper Accepted</div>
+        <div class="card-desc">Manuscript accepted for publication after peer review.</div>
+        <span class="card-cite">14 November 2020 · Page 27, Header</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 03</div>
+        <div class="card-title">Paper Published</div>
+        <div class="card-desc">Official publication in Journal of Cyber Security and Mobility, Vol. 10(1), pp. 27–64.</div>
+        <span class="card-cite">10 March 2021 · Page 27, Header</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 04</div>
+        <div class="card-title">ARES/IWCC 2020 Conference</div>
+        <div class="card-desc">Original shorter version of this paper was presented at the 9th International Workshop on Cyber Crime (IWCC 2020) in conjunction with ARES 2020.</div>
+        <span class="card-cite">2020 · Page 58, Acknowledgments</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 05</div>
+        <div class="card-title">McCreight & Weber Patent</div>
+        <div class="card-desc">Patent filed for entropy-based near-match analysis method using Shannon Entropy Equation — foundational to this paper's approach.</div>
+        <span class="card-cite">2010 · Page 40, Section 3.1</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 06</div>
+        <div class="card-title">Stuttgen et al. Selective Imaging</div>
+        <div class="card-desc">Stuttgen et al. revived Turner's approach and developed partial imaging in AFF4 format as an open forensic evidence container.</div>
+        <span class="card-cite">2013 · Page 35, Section 2</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 07</div>
+        <div class="card-title">Grier & Richard Rapid Imaging</div>
+        <div class="card-desc">Work on accelerating selective imaging processes and making them more flexible for digital forensic investigations.</div>
+        <span class="card-cite">2015 · Page 35–36, Section 2</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 08</div>
+        <div class="card-title">Dumais et al. Text Categorization</div>
+        <div class="card-desc">Early foundational work on clustering under the name of text categorization and classification, demonstrating necessity of automation.</div>
+        <span class="card-cite">1998 · Page 37, Section 2</span>
+      </div>
+ 
+      <div class="card date">
+        <div class="card-num">DATE · 09</div>
+        <div class="card-title">Castiglione et al. Secure Deletion</div>
+        <div class="card-desc">Proposed an automatic, selective and secure deletion approach for digital evidence on physical storage media.</div>
+        <span class="card-cite">2011 · Page 36, Section 2</span>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <!-- STAKEHOLDERS -->
+  <div class="section" id="section-stake">
+    <div class="section-header stake">
+      <span class="section-icon">👥</span>
+      <h2 class="section-title">Stakeholders</h2>
+      <span class="section-count">8 items extracted</span>
+    </div>
+    <div class="cards">
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 01</div>
+        <div class="card-title">Ludwig Englbrecht</div>
+        <div class="card-desc">Corresponding author and research assistant at the University of Regensburg, Germany. PhD candidate under Prof. Günther Pernul. Research focus on Digital Forensics and Digital Forensic Readiness.</div>
+        <span class="card-cite">Page 27, Header · Pages 62–63, Biographies</span>
+      </div>
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 02</div>
+        <div class="card-title">Günther Pernul</div>
+        <div class="card-desc">Co-author and full professor at the Department of Information Systems, University of Regensburg. Research interests include data security, privacy, data analytics, and advanced data-centric applications.</div>
+        <span class="card-cite">Page 27, Header · Pages 62–63, Biographies</span>
+      </div>
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 03</div>
+        <div class="card-title">Digital Forensics Investigators</div>
+        <div class="card-desc">Central actors in the investigation process who must be granted or denied access to seized material depending on file classification. Identified as a potential vulnerability due to trustworthiness concerns.</div>
+        <span class="card-cite">Pages 29–30, Section 1 · Page 40, Section 3.1</span>
+      </div>
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 04</div>
+        <div class="card-title">Employees</div>
+        <div class="card-desc">Individuals whose private data may reside on work machines, either through permitted personal use or incidental storage. Their privacy must be protected during forensic investigations under GDPR.</div>
+        <span class="card-cite">Pages 28–29, Section 1</span>
+      </div>
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 05</div>
+        <div class="card-title">Customers</div>
+        <div class="card-desc">Identified alongside employees as persons whose personal data may be present on seized devices and must be protected under GDPR regulations.</div>
+        <span class="card-cite">Page 29, Section 1</span>
+      </div>
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 06</div>
+        <div class="card-title">Data Subjects</div>
+        <div class="card-desc">Defined by GDPR as any identified or identifiable natural person whose personal data must be protected throughout any forensic investigation process.</div>
+        <span class="card-cite">Page 28, Section 1</span>
+      </div>
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 07</div>
+        <div class="card-title">Judges & Courts</div>
+        <div class="card-desc">Referenced as the ultimate arbiters of evidence admissibility, determining which integrity-proving methods are acceptable in legal proceedings involving digital forensic evidence.</div>
+        <span class="card-cite">Pages 34–35, Section 2</span>
+      </div>
+ 
+      <div class="card stake">
+        <div class="card-num">STAKEHOLDER · 08</div>
+        <div class="card-title">Law Enforcement Agencies</div>
+        <div class="card-desc">Identified as future feedback providers for refining the proposed method in real-world environments, mentioned as key collaborators for future work.</div>
+        <span class="card-cite">Page 57, Section 6 — Conclusion and Future Work</span>
+      </div>
+ 
+    </div>
+  </div>
+ 
+</div>
+ 
+<!-- CITATION PROMPTS SECTION -->
+<div class="prompt-section">
+  <h3>Citation Prompts Used</h3>
+ 
+  <div class="prompt-label">Base Instruction Prompt</div>
+  <div class="prompt-block">"You are a document analyst. Answer questions ONLY using the provided document. For every claim you make, cite the exact page number and section in this format: [Page X, Section Y]. If the answer is not found in the document, say 'Not found in document.' Do not add any outside knowledge."</div>
+ 
+  <div class="prompt-label">Risks Extraction Prompt</div>
+  <div class="prompt-block">"List all risks and limitations mentioned in this paper. Cite the page number and section for each risk."</div>
+ 
+  <div class="prompt-label">Dates Extraction Prompt</div>
+  <div class="prompt-block">"Extract all dates mentioned in this paper. For each date, explain what it refers to and cite the page number."</div>
+ 
+  <div class="prompt-label">Stakeholders Extraction Prompt</div>
+  <div class="prompt-block">"Identify all stakeholders mentioned in this paper — people, institutions, and organizations. Cite the page number where each is mentioned."</div>
+</div>
+ 
+<!-- FOOTER -->
+<footer>
+  Task 3: The Knowledge Analyst (RAG Concepts) &nbsp;·&nbsp; <span>DecodeLabs Industrial Training 2026</span> &nbsp;·&nbsp; Document Intelligence Dashboard
+</footer>
+ 
+<script>
+  function filterCards(type, btn) {
+    // Update active tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+ 
+    const sections = {
+      risk: document.getElementById('section-risk'),
+      date: document.getElementById('section-date'),
+      stake: document.getElementById('section-stake'),
+    };
+ 
+    if (type === 'all') {
+      Object.values(sections).forEach(s => s.classList.remove('hidden'));
+    } else {
+      Object.entries(sections).forEach(([key, el]) => {
+        if (key === type) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+      });
+    }
+  }
+</script>
+</body>
+</html>
