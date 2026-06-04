@@ -24,4 +24,3 @@ Screenshots of results included in this repository.
 Claude AI — Document Analysis
 HTML/CSS/JS — Dashboard
 
-http://127.0.0.1:5500/ai%20document.html
