@@ -126,4 +126,18 @@ AI safety documentation
 
 Red teaming reporting techniques
 
+### Output Screenshots
+
+<img width="1056" height="329" alt="image" src="https://github.com/user-attachments/assets/ce7c56e9-fbb8-407d-8eb7-950bf758520d" />
+
+<img width="226" height="322" alt="image" src="https://github.com/user-attachments/assets/49c256da-cbe6-42b6-bdd6-efcf2397b884" />
+
+<img width="1160" height="698" alt="image" src="https://github.com/user-attachments/assets/39f51189-0148-4064-bc07-dbcc2a7ec715" />
+
+<img width="614" height="622" alt="image" src="https://github.com/user-attachments/assets/aa03a15b-5179-413a-b90b-84efff7d025c" />
+
+
+
+
+
 
