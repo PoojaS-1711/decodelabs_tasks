@@ -154,7 +154,7 @@ Hypothetical framing — wrapping harmful requests inside fictional scenarios �
 - HTML / CSS — Audit report document
 
 ### Files
-- `task5-audit-report.html` — Full professional audit report
+- `Audit-report-task5.html` — Full professional audit report
 - `README.md` — Task documentation
 - Screenshots of all red teaming and bias test results
 
@@ -174,11 +174,11 @@ Hypothetical framing — wrapping harmful requests inside fictional scenarios �
 │   └── screenshots/
 │
 ├── Audit-report-task5/
-│   ├── task5-audit-report.html
+│   ├── Audit-report-task5.html
 │   ├── README.md
 │   └── screenshots/
 │
-└── README.md  ← This file
+└── README.md  
 ```
 
 ---
